@@ -1,187 +1,187 @@
 # Items Picker
 
-Після розпакування архіву ItemsPicker.zip та відкриття файлу ItemsPicker.uproject потрібно підвантажити усі об'єкти у ігровому полі:
+After unpacking the ItemsPicker.zip archive and opening the ItemsPicker.uproject file, you need to load all the objects in the game field:
 
 <img src="./MarkdownPics/LoadObjects.png" alt="" data-canonical-src="" width="500" height="" />
 
-Після цього ви маєте побачити усі об'єкти.
+After that you should see all the objects.
 
-## 1. Підключити мапінг використання клавіатури.
+## 1. Enable keyboard mapping.
 
-Створений мапінг для використання клавіатури підключається на початку гри.
-У цьому мапінгу розсписано як використовуюєтсья клавіша TAB (посилання на enhanced input що впроваджує зміну показу віджетів),
-клавіша Q (посилання на enhanced input що впроваджує під'йом, розміщення у інвентарі та видалення з ігрового поля об'єкта),
-клавіша E (посилання на enhanced input що впроваджує видалення однієї позиції об'єкта з інвентаря, та викидання цієї позиції у ігрове поле), клавіша Esc (посилання на enhanced input що впроваджує вихід з гри).
+Created mapping for using the keyboard is connected at the beginning of the game.
+This mapping describes how to use:
 
-При цьому ігнорується старий підхід щодо 'Engine - Input': 'Axis and Action mappings'.
-Це елементарне назначання відповідної клавіши у налаштуваннях проекту з вказівкою за що вона відповідає. В Unreal Engine 5 - так не бажано робити, тому я так не роблю.
+- _TAB_ key (a link to enhanced input that implements a change in the display of widgets);
+- _Q_ key (link to enhanced input that implements picking up, placing in the inventory and removing from the playing field of the object);
+- _E_ key (link to enhanced input that implements the removal of one position of the object from the inventory, and throwing this Item into the game field);
+- _Esc_ key (link to enhanced input that implements the exit from the game).
 
-## 2. Створити віджети.
+At the same time, the old approach regarding 'Engine - Input': 'Axis and Action mappings' is ignored.
+This is a simple assignment of the corresponding key in the project settings with an indication of what it is responsible for. In Unreal Engine 5, it is not desirable to do that, so I don't do it that way.
 
-Створюється три віджета:
+## 2. Create widgets.
 
-Віджет інвентаря - 'BPW_Inventory'
-Віджет інструкції - 'BPW_Instructions'
-Іконка стеку інвентаря - 'BPW_PickUpItem'
+Three widgets are created:
 
-- 'BPW_Inventory'. Окрім 4 текстових лейблів та кордону з округленними кутами, тут є 'WrapperBox', у його межах будуть створюватись нові віджети об'єктів що зберігаються у інвентарі. 'InventoryBox' позначається як IsVariable - щоб можна було звертатися до нього у блу-принтах.
+Inventory Widget - 'BPW_Inventory'\
+Instructions Widget - 'BPW_Instructions'\
+Inventory Stack Icon - 'BPW_PickUpItem'
 
-- 'BPW_Instructions'. Полегшена копія попереднього віджета - де відсутній 'WrapperBox' та лейбл 'Inventory'. Цей віджет тільки дає підказку як використовувати основні клавіши.
+- 'BPW_Inventory'. In addition to 4 text labels and a border with rounded corners, there is a 'WrapperBox', within which new widgets of objects stored in the inventory will be created. 'InventoryBox' is marked as IsVariable - so that it can be accessed in blueprints.
 
-- 'BPW_PickUpItem'. Це 'overlay' який розполагається поверх батьківського віджета. Додана кнопка (можна на початку гри підключити функцію вмикання курсора миші для того щоб обирати конкретний предмет у інвентарі натиском курсору, або розробити у майбутньому систему перемикання між позиціями стрілками клавіатури). Додана іконка - вона замальовувається картинкою яка прикріплена до відповідного блу-прінта об'єкта що підіймається (цей процес прводиться у функції 'AddNewStack' у 'BP_Player'). Текст з кількістью об'єктів у стеку. Важливо зазначити що є розміри інвентаря (це кількість стеків що можна розмістити у інвентарі - за замовченням це: 8 у 'BP_Player') та розмір стеку (це максимальна кількість об'єктів одного типу що можна розмістити "один на одному" - для об'єкта 'BP_Ball' цей параметр за замовченням: 3). На початку гри текст не видимий, як тільки у стеку з'явиться другий об'єкт цей текст підсвітиться, як тільки зменшиться до 1 - знову зникне. Елементи ItemIcon, ItemStackSizeText створюються з позначкою IsVariable - для того щоб редагувати їх у майбутньому (з ItemButton можна зробити так само, щоб імплементувати у майбутньому вибір об'єктів у стеку при натисканні мишкою).
+- 'BPW_Instructions'. A lighter copy of the previous widget - missing the 'WrapperBox' and the 'Inventory' label. This widget only gives a hint how to use the main keys.
 
-  Тут створюються змінні які зберігають ItemClass, MaxStack - вони заповнюються при створенні, а також CurrentStack - оновлюється у випадку додавання або видалення об'єктів.
+- 'BPW_PickUpItem'. This is an 'overlay' that sits on top of the parent widget. A button has been added (you can enable the function of turning on the mouse cursor at the beginning of the game in order to select a specific item in the inventory by pressing the cursor, or develop a system for switching between positions with keyboard arrows in the future). Added icon - it is drawn with a picture attached to the corresponding blueprint of the rising object (this process is carried out in the 'AddNewStack' function in 'BP_Player'). Text with the number of objects in the stack. It is important to note that there are inventory sizes (this is the number of stacks that can be placed in the inventory - by default it is: 8 in 'BP_Player') and stack size (this is the maximum number of objects of the same type that can be placed "one on top of another" - for objects object 'BP_Ball' this parameter by default: 3). At the beginning of the game, the text is not visible, as soon as the second object appears in the stack, this text will light up, as soon as it decreases to 1, it will disappear again. The ItemIcon, ItemStackSizeText elements are created with the IsVariable mark - in order to edit them in the future (the same can be done with the ItemButton, in order to implement the selection of objects in the stack in the future when clicking with the mouse).
 
-На рівні 'PickingTesting' - розташовано 25 шарів одного типу. Відповідно у інвентарі можна розмістити 8x3 шари (8 стеків з 3 кульками у кожному) і залишиться тільки один шар, який не буде доданий поки не звільниться місце у стеку.
+  Variables are created here that store ItemClass, MaxStack - they are filled during creation, as well as CurrentStack - updated in case of adding or removing objects.
 
-## 3. Відмалювати віджети.
+At the 'PickingTesting' level - there are 25 instances of BP_Ball in the game field. Accordingly, you can place 8x3 balls in the inventory (8 stacks with 3 balls each) and only one ball will remain, which will not be added until there is room in the stack.
 
-У події 'Begin Play' створюються віджети для інвентаря та ігрової інструкції.
+## 3. Draw widgets.
+
+The 'Begin Play' event creates widgets for the inventory and game instructions.
 
 <img src="./MarkdownPics/Instruction_StartUp.png" alt="" data-canonical-src="" width="450" height="450" />
 <img src="./MarkdownPics/Inventory_StartUp.png" alt="" data-canonical-src="" width="450" height="450" />
 
-Але який саме віджет буде демонструватись залежить від клавіши TAB.
-На початку гри інвентарь прихований і ми бачимо інструкцію щодо того як підняти та викинути предмет, та як показати інвентарь.
+But which widget will be displayed depends on the TAB key.
+At the beginning of the game, the inventory is hidden and we see instructions on how to pick up and throw an item, and how to show the inventory.
 
-При натисканні клавіши TAB буде продемонстрований інший віджет - інвентарь (де також є інструкція), менший віджет буде схований.
+When you press the TAB key, another widget will be shown - the inventory (which also has instructions), the smaller widget will be hidden.
 
-Віджет з іконкою відповідного об'єкту для інвентаря очевидно не потрібно відмальовувати на початку гри. Він буде відмальовуватись у функції 'AddNewStack' - яка викликається якщо ми бачимо поруч об'єкт що можна піднімати, для нього немає місця у якомусь стеку (або жодного стеку немає взагалі) і є місця у інвентарі.
+The widget with the icon of the corresponding object for the inventory obviously does not need to be drawn at the beginning of the game. It will be drawn in the 'AddNewStack' function - which is called if we see an object nearby that can be lifted, there is no place for it in any stack (or there is no stack at all) and there is space in the inventory.
 
-## 4. Додати потрібні змінні до блу-принта гравця.
+## 4. Add the required variables to the player's blueprint.
 
-Гравець - 'BP_Player'.
+The player is 'BP_Player'.
 
-При створенні віджетів обрати promote to variable - так створити змінні InventoryWidget та InstructionsWidget. Булевська змінна InventoryShowwing - допоможе організувати перемикання між ними при натисканні TAB. У гравці створюється змінна InventoryCapacity - як багато стеків можна створити у інвентарі (по дефолту 8). Далі потрібно буде считувати розмір масива з дітьми у InventoryBox та слідкувати за тим щоб цей параметр не перебільшував InventoryCapacity. Коли буде проводитись пошук доступних для під'ому обє'ктів вони будуть зберігаться у масиві AvailableItems серед яких буде знаходитись NearestItem.
+When creating widgets, choose promote to variable - this is how to create InventoryWidget and InstructionsWidget variables. Boolean variable InventoryShowing - will help organize switching between them when pressing TAB. The InventoryCapacity variable is created in the player - how many stacks can be created in the inventory (by default 8). Next, you will need to read the size of the array with children in InventoryBox and make sure that this parameter does not exceed InventoryCapacity. When searching for objects available for lifting, they will be stored in the AvailableItems array, among which NearestItem will be found.
 
-## 5. Створити блу-принти підлоги та об'єктів.
+## 5. Create blueprints of the floor and objects.
 
-Ігровий об'єкт - 'BP_PickableParent'
+Game Object - 'BP_PickableParent'\
+Successor to the previous blue print, pickable ball - 'BP_Ball'\
+Floor - 'BP_Floor'
 
-Наслідник попереднього блу-принта, шар - 'BP_Ball'
+It is desirable to have sufficiently adequate objects: such that you can suddenly kick with your foot and they will roll to the side, so for this they should have 'SimulatePhysics' enabled in 'StaticMesh'. So that objects do not fall under the floor at the beginning of the game, you need to create a blueprint of the floor with 'CollisionBox'. In the 'CollisionBox' settings, choose the 'PhysicsBody' reset in the column of collision resets - so that the balls do not fall through the floor.
 
-Підлога - 'BP_Floor'
+Next, create a parent blueprint for the objects that we pick up. In the inherited blueprints, the icon (for the inventory) and the maximum number of objects in the stack will differ.
 
-Бажано мати достатньо адекватні об'єкти: такі що можна раптово штовхнути ногою і вони покотяться у сторону, тому для цього вони мають мати у собі увімкненим 'SimulatePhysics' у 'StaticMesh'. Щоб на початку гри об'єкти не провалювались під підлогу - потрібно створити блу-прінт підлоги з 'CollisionBox'. У налаштуваннях 'CollisionBox' обрати пересет 'PhysicsBody' у графі пересети колізій - щоб кульки не провалювались крізь підлогу.
+It has: an empty 'StaticMesh' - the successor will overwrite this component with its non-empty mesh, 'CollisionSphere' - makes it possible to "see" this item when searching via the 'GetAllOverlappedActors' function.
 
-Далі створити батьківський блу-прінт для об'єктів що ми піднімаємо. У наслідуваних блу-прінтах буде відрізнятись іконка (для інвенторя) та максимальна кількість об'єктів у стеку.
+It is important to note here the good and bad design of the placement of these two components in the tree.
 
-Він має: пустий 'StaticMesh' - наслідник перезапише цей компонент своїм не пустим мешем, 'CollisionSphere' - дає можливість "бачати" цей предмет при пошуку через функцію 'GetAllOverlappedActors'.
-
-Тут важливо зазначити про гарний та поганий дизайн розташування цих двох компонентів у дереві.
-
-### Поганий дизайн
+### Bad design
 
 <img src="./MarkdownPics/BP_PickableParent_Root_BadDesign.png" alt="" data-canonical-src="" width="500" height="" />
 
-Такий дизайн зі 'StaticMesh' під або над 'CollisionSphere' (що не має різниці) - це перше що ви отримаєте після додавання відповідних компонентів. При такому дизайні при звертанні до функції 'GetActorLocation' для відповідної кульки ви будете отримувати координат кулька з її положенням після створення (на початку гри або після 'SpawnActor'). І якщо раптом ви її порухаєте гравець 'BP_Player' перестане з ним перетинятись (при звертанні до функції 'GetAllOverlappedActors' 'CollisionSphere' гравця буде далеко від початкових координат кульки).
+This design with 'StaticMesh' under or above 'CollisionSphere' (which makes no difference) is the first thing you get after adding the appropriate components. With this design, when calling the 'GetActorLocation' function for the corresponding ball, you will get the coordinates of the ball with its position after creation (at the start of the game or after 'SpawnActor'). And if you suddenly move it, the 'BP_Player' player will stop "seeing" with it (when calling the 'GetAllOverlappedActors' 'CollisionSphere' function, the player will be far from the ball's initial coordinates).
 
-### Гарний дизайн
+### Good design
 
 <img src="./MarkdownPics/BP_PickableParent_Root_GoodDesign.png" alt="" data-canonical-src="" width="500" height="" />
 
-Потрібно перетягнути 'StaticMesh' на позицію DefaultSceneRoot забравши її собі.
-Тепер 'CollisionSphere' належить мешу і видає його актуальні координати, а не ті що були після ініціалізації.
+You need to drag 'StaticMesh' to the DefaultSceneRoot position and take it for yourself.
+Now 'CollisionSphere' belongs to the mesh and gives its current coordinates, not those after initialization.
 
-У налаштуваннях меша треба обрати пересет 'WorldDynamic' та позначити блокування 'PhysicsBody' та 'WorldDynamic' - щоб не перетинятись з тілом гравця що рухається та не провалюватись під підлого.
+In the mesh settings > Collision, you need to select the 'WorldDynamic' preset and mark the 'PhysicsBody' and 'WorldDynamic' to block - so as not to intersect with the moving player's body and not sink under the floor.
 
-Саме 'CollisionSphere' відповідає за знайдення об'єкту та передачу його координат - тому тут для всіх об'єктів обрати Overlap.
+It is 'CollisionSphere' that is responsible for finding the object and transferring its coordinates - that's why here for all objects choose Overlap.
 
-Створити змінні у батьківському блу-принті: 'ItemClass' - у наслідуванному блу-принті вказати який клас він представляє, 'ItemIcon' - у наслідуванному блу-принті обрати картинку іконки для інвентаря, 'StackSize' - також вказується у наслідуванному блу-принті.
+Create variables in the parent blueprint: 'ItemClass' - in the inherited blueprint specify which class it represents, 'ItemIcon' - in the inherited blueprint choose an icon image for the inventory, 'StackSize' - also specified in the inherited blueprint.
 
-## 6. Створити інтерфейс блу-принти для комунікації між блу-принтами гравця, ігрового об'єкту та іконки стеку інвентаря.
+## 6. Create a blueprint interfaces for communication between player, game objects, and inventory stack icon blueprints.
 
-Після натискання клавіші Q буде згенерований сигнал OpenInventory - який отримає відповідний найближчий об'єкт. Він має запевнетись що до нього звертається гравець, а не інший ігровий об'єкт і після цього ігровий об'єкт пакує презентабельну інформацію та надсилає її сигналом GetItemData.
+After pressing the Q key, an OpenInventory signal will be generated - which will receive the corresponding nearest object. It must make sure that it is addressed by the player, and not by another game object, and after that the game object packages the presentable information and sends it with the GetItemData signal.
 
-Event GetItemData: Гравець має отримати презентабельну інформацію (клас, іконка та розмір стеку) від ігрового об'єкту.
+Event GetItemData: The player should get the presentable information (class, icon and stack size) from the game object.
 
-При цьому гравець надсилає сигнали: TouchItemData - зчитати актуальний стан іконки (клас, актуальна кількість об'єктів у стеку, максимальна кількість). І якщо для нового об'єкту знайшлось місце у існуючому стеку - об'єкт буде доданий туди сигналом AddItemToStack (який отримає іконка).
+At the same time, the player sends signals: TouchItemData - read the current state of the icon (class, current number of objects in the stack, maximum number). And if there is a place for the new object in the existing stack, the object will be added there by the AddItemToStack signal (which the icon will receive).
 
-У випадку якщо у існуючому стеку місця не знайшлось буде перевірено чи не заповнений інвентарь і якщо ще є місце для нового стеку, то він буде створений.
-У останньому випадку об'єкт у ігровому полі буде знищенний.
+If there is no room in the existing stack, the inventory will check to see if it is full, and if there is room for a new stack, it will be created. In such case, the object in the playing field will be destroyed.
 
-Event DropItem: Відповісти на сигнал про скидання об'єкту з інвентаря (сигнал іде від іконки) - створити новий об'єкт (з відповідноми координатами та поворотом) та відправити сигнал до ігрового об'єкту PushItemAway: де у батьківському класі вже прописано як буде додаватись імпульс до ного об'єкту.
+Event DropItem: Respond to the signal about dropping the object from the inventory (the signal comes from the icon) - create a new object (with the appropriate coordinates and rotation) and send a signal to the game object PushItemAway: where the parent class has already written how it will be impulse is added to the object.
 
-Після натисканні клавіші E буде отриманий доступ до останньої іконки у стеку (у майбутньому можна буде організувати вибір іконок клавішами клавіатури або мишкою) та відправити сигнал до іконки стеку TakeFromInventory.
-Event TakeFromInventory: буде згенерований сигнал про скидання об'єкту відповідного класу DropItem. У цьому ж івенті лічильник буде зменшений та оновиться на іконці, або сама іконка буде знищена якщо це був останній об'єкт.
+After pressing the E key, access to the last icon in the stack will be obtained (in the future, it will be possible to organize the selection of icons with keyboard keys or the mouse) and send a signal to the TakeFromInventory stack icon.
+Event TakeFromInventory: a signal will be generated to reset the object of the corresponding DropItem class. In the same event, the counter will be reduced and updated on the icon, or the icon itself will be destroyed if it was the last object.
 
-Відповідно можна рознести сигнали по різним блу-принтам:
+Accordingly, you can distribute signals on different blueprints:
 
-BPI_Keyboard - OpenInventory та TakeFromInventory генеруютсья безпосередньо після натискання відповідних клавіш на клавіатурі, що отримується у 'BP_Player' та надсилаються далі.
+BPI_Keyboard - OpenInventory and TakeFromInventory are generated directly after pressing the corresponding keys on the keyboard, received in 'BP_Player' and passed on.
 
-BPI_Picking - GetItemData, DropItem, TouchItemData, AddItemToStack та PushItemAway це безпосередньо обмін данними між блупринтами.
+BPI_Picking - GetItemData, DropItem, TouchItemData, AddItemToStack and PushItemAway are direct data exchanges between blueprints.
 
-## 7. Організувати ігровий процес.
+## 7. Organize the game process.
 
-**Event graph у BP_Player:**
+**Event graph in BP_Player:**
 
-Потрібно дослідити щоб в процесі гри всі сигнали та події мали адекватну послідовність, також бажано у правильний момент забрати у гравця можливість керувати грою поки обрабляється ігрове поли з пошуком нового об'єкта, щоб вберегти від завчасного скидання, та іншого.
+It is necessary to investigate so that during the game all signals and events have an adequate sequence, it is also desirable at the right moment to take away from the player the opportunity to control the game while the playing field is processed with the search for a new object, to protect against premature resetting, and other things.
 
 _Event Enhanced IA_InventoryShowHide:_
 
-- Перше натискання - інвентарь показується, на наступному ховаєтсья і так далі.
+- The first press - the inventory is shown, on the next it is hidden, on the next it is shown again and so on.
 
 _Event Enhanced IA_PickUpStuff:_
 
-- Натискається клавіша Q та вимикається можливість керування грою у гравця.
-- Гравець зупиняється.
-- TouchAllAvailableItems: зчитати всі OverlappedActors та додати унікальні що є наслідниками класу BP_PickableParent до пустого масиву. Якщо після аналізу масив залишився пустим віддати грацію керування. Можна буде очікувати поки гравець знову не натисне клавішу Q.
-- GetNearestItem: зважаємо на те що всі об'єкти мають бути в межах 'CollisionSphere', тому її радіус можна використати при пошуку найближчого об'єкта. Для кожного об'єкту у масиві можна порахувати відстань до гравця, оновити цю відстань якщо вона менше попередньої та перезаписати змінну з посиланням до найближчого об'єкту.
-- Якщо не знайшлось адекватного близького об'єкту (бо ми відсіяли всі не ігрові об'єкти які могли потрапити до масиву).
-- Надсилаємо сигнал OpenInventory до батьківського класу об'єкту, який спакує для нас інформацію про цей об'єкт.
+- The Q key is pressed and the player's ability to control the game is turned off.
+- The player stops.
+- TouchAllAvailableItems: read all OverlappedActors and add the unique descendants of the BP_PickableParent class to an empty array. If the array remains empty after the analysis, give controls back to user. So it will be possible to wait until the player presses the Q key again.
+- GetNearestItem: note that all objects must be within the 'CollisionSphere', so its radius can be used when searching for the nearest object. For each object in the array, you can calculate the distance to the player, update this distance if it is less than the previous one, and overwrite the variable with a reference to the nearest object.
+- If no adequate nearby object was found (because we screened out all non-game objects that could get into the array) give controls back to user.
+- If found: we send the OpenInventory signal to the parent class of the object, which packs information about this object for us.
 
 _Event GetItemData:_
 
-- Спочатку перевірити чи відповідний об'єкт запрограмований на стекування. Ми можемо створювати такі об'єкти які будуть займати собою цілий стек (відповідно розмір стеку у них дорівнює одиницею).
-- Якщо об'єкт стекується, то перевірити чи не має для нього місця у існуючих стеках. Тут нам знадобиться змінна InventoryWidget, яка дасть нам доступн до змінної InventoryBox з якої ми візьмемо масив існуючих стеків до кожного з яких будемо надсилати сигнал TouchItemData.
+- First, check whether the corresponding object is programmed for stacking. We can create such objects that will occupy an entire stack (respectively, their stack size is equal to one).
+- If the object is stacked, then check whether there is room for it in the existing stacks. Here we need the InventoryWidget variable, which will give us access to the InventoryBox variable from which we will take an array of existing stacks to each of which we will send a TouchItemData signal.
 
-- Звіряємо клас піддослідного класу з класом у віджеті, якщо є співпадіння - перевіряємо чи є для нього місце у стеку, якщо є місце - надсилаємо сигнал AddItemToStack.
+- We compare the class of the test class with the class in the widget, if there is a match - we check if there is room for it in the stack, if there is room - we send the AddItemToStack signal.
 
 <img src="./MarkdownPics/TouchItemData_implementation.png" alt="" data-canonical-src="" width="500" height="" />
 
-У блу-принті BPW_PickUpItem потрібно реалізувати сигнал TouchItemData - з'єднавши всі данні іконки.
+In the BPW_PickUpItem blueprint, you need to implement the TouchItemData signal - by connecting all these icons.
 
 _Event AddItemToStack (BPW_PickUpItem):_
 
-Збільшується лічильник у стеку, оновлюється текстовий лейбл, за необхідністю встановлюється видимість тексту.
+The stack counter is incremented, the text label is updated, and text visibility is set as necessary.
 
-Далі знову **Event graph у BP_Player:**
+Back to **Event graph in BP_Player:**
 
-- Якщо місце знайшлось - знищити об'єкт у ігровому полі. Віддати контроль гравцю.
+- If a place is found - destroy the object in the playing field. Give control to the player.
 
-- Якщо місця у стеку не знайшлось, або якщо об'єкт не стекується - потрібно перевірити чи є взагалі місце у інвентарі для нового стеку. Якщо є то створюється новий стек, знищується об'єкт у ігровому полі та повертається контроль гравцеві.
+- If there is no room in the stack, or if the object does not stack - you need to check if there is room in the inventory for a new stack. If there is, a new stack is created, the object in the playing field is destroyed and control is returned to the player.
 
-- Якщо у інвентарі немає місця для нового стеку, то об'єкт **не знищується** та повертається контроль гравцеві.
+- If there is no room in the inventory for a new stack, then the object is **not destroyed** and control is returned to the player.
 
-_Event Enhanced IA_GrabStuff:_
+_Event Enhanced IA_ThrowStuff:_
 
-- Після натисканні клавіші E беремо останній віджит у масиві віджетів з InventoryBox. Якщо такий віджет знайшовся то генеруємо сигнал TakeFromInventory.
-  Якщо немає, то жодної гра ніяк не реагує - інвентарь пустий.
+- After pressing the E key, we take the last widget in the widget array from the InventoryBox. If such a widget is found, we generate the TakeFromInventory signal.
+  If there is none, then the game does not respond in any way - the inventory is empty.
 
 _Event TakeFromInventory (BPW_PickUpItem):_
 
-- Пакується інформація про клас що буде звільнятись з інвентаря та генерується сигнал DropItem для BP_Player.
+- Information about the class that will be released from the inventory is packed and a DropItem signal is generated for BP_Player.
 
-- Декременується стек. Якщо він дорівнює після цього нулю - віджет знищується.
+- The stack is decremented. If it is equal to zero after that, the widget is destroyed.
 
-- Якщо ще залишився хочаб один об'єкт у стеку - потрібно перевірити чи ми показуємо текстовий лейбл (якщо об'єкт один у стек ми не показуємо лейбл). Також оновлюємо кількість вказану у текстовому лейблі.
+- If there is at least one object left in the stack - you need to check whether we show the text label (if there is only one object in the stack, we do not show the label). We also update the quantity indicated in the text label.
 
-Далі знову **Event graph у BP_Player:**
+Back to **Event graph in BP_Player:**
 
 _Event DropItem:_
 
-- У полі генерується об'єкт з відповідним положенням та оборотом.
+- An object with the appropriate position and rotation is generated in the field.
 
-- Генерується сигнал PushItemAway для батьківського класу об'єкта BP_PickableParent.
+- The PushItemAway signal is generated for the BP_PickableParent object's parent class.
 
 _Event PushItemAway (BP_PickableParent):_
 
-- Розраховується початковий імпульс для новостворенного об'єкту. Це додасть реалістичності при скиданні об'єкту.
+- The initial impulse for the newly created object is calculated. This will add realism when dropping the object.
 
 _Event Enhanced IA_Quit:_
 
-- Коли користувач натисне Escape закриється декстопне вікно з грою (цей функціонал розроблений для експортовання гри на PC: Windows, Linux).
+- When the user presses Escape, the desktop window with the game will be closed (this functionality is designed to export the game to PC: Windows, Linux).
 
-## Можна насолоджуватись грою.
+## You can enjoy the game.
 
 <img src="./MarkdownPics/GamePlay_showcase.gif" alt="" data-canonical-src="" width="" height="" />
